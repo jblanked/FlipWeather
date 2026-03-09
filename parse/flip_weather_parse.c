@@ -279,7 +279,7 @@ char *process_weather(DataLoaderModel *model)
                 return NULL;
             }
         }
-        snprintf(weather_data, 512, "Condition: %s\nTemperature: %s %s\nWind: %s mph %s\nPrecipitation: %s\nRain: %s\nShowers: %s\nSnowfall: %s\nTime: %s", condition, temperature, use_fahrenheit ? "\xB0F" : "\xB0C", wind_speed, compass, precipitation, rain, showers, snowfall, time);
+        snprintf(weather_data, 512, "Condition: %s\nTemperature: %s %s\nWind: %s mph %s\nPrecipitation: %s\nRain: %s\nShowers: %s\nSnowfall: %s\nTime: %s", condition, temperature, use_fahrenheit ? "\xB0" "F" : "\xB0" "C", wind_speed, compass, precipitation, rain, showers, snowfall, time);
 
         fhttp.state = IDLE;
         free(current_data);
