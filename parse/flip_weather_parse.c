@@ -63,7 +63,33 @@ bool send_geo_location_request()
         fhttp.state = ISSUE;
         return false;
     }
-    if (!flipper_http_get_request_with_headers("https://ipwhois.app/json/", "{\"Content-Type\": \"application/json\"}"))
+    char url[512];
+    if (strlen(custom_location) > 0)
+    {
+        // URL-encode custom_location (replace spaces with %20)
+        char encoded_location[192];
+        size_t j = 0;
+        for (size_t i = 0; i < strlen(custom_location) && j < sizeof(encoded_location) - 3; i++)
+        {
+            if (custom_location[i] == ' ')
+            {
+                encoded_location[j++] = '%';
+                encoded_location[j++] = '2';
+                encoded_location[j++] = '0';
+            }
+            else
+            {
+                encoded_location[j++] = custom_location[i];
+            }
+        }
+        encoded_location[j] = '\0';
+        snprintf(url, sizeof(url), "https://geocoding-api.open-meteo.com/v1/search?name=%s&count=1&language=en&format=json", encoded_location);
+    }
+    else
+    {
+        snprintf(url, sizeof(url), "https://ipwhois.app/json/");
+    }
+    if (!flipper_http_get_request_with_headers(url, "{\"Content-Type\": \"application/json\"}"))
     {
         FURI_LOG_E(TAG, "Failed to send GET request");
         fhttp.state = ISSUE;
@@ -94,16 +120,47 @@ char *process_geo_location(DataLoaderModel *model)
     UNUSED(model);
     if (fhttp.last_response != NULL)
     {
-        char *city = get_json_value("city", fhttp.last_response, MAX_TOKENS);
-        char *region = get_json_value("region", fhttp.last_response, MAX_TOKENS);
-        char *country = get_json_value("country", fhttp.last_response, MAX_TOKENS);
-        char *latitude = get_json_value("latitude", fhttp.last_response, MAX_TOKENS);
-        char *longitude = get_json_value("longitude", fhttp.last_response, MAX_TOKENS);
+        char *latitude = NULL;
+        char *longitude = NULL;
+        char *city = NULL;
+        char *region = NULL;
+        char *country = NULL;
+
+        if (strlen(custom_location) > 0)
+        {
+            // Parse open-meteo geocoding API response: {"results":[{"latitude":...,"longitude":...,"name":...,"admin1":...,"country":...}]}
+            char *result = get_json_array_value("results", 0, fhttp.last_response, MAX_TOKENS);
+            if (result == NULL)
+            {
+                FURI_LOG_E(TAG, "Failed to get geocoding results");
+                fhttp.state = ISSUE;
+                return NULL;
+            }
+            latitude = get_json_value("latitude", result, MAX_TOKENS);
+            longitude = get_json_value("longitude", result, MAX_TOKENS);
+            city = get_json_value("name", result, MAX_TOKENS);
+            region = get_json_value("admin1", result, MAX_TOKENS);
+            country = get_json_value("country", result, MAX_TOKENS);
+            free(result);
+        }
+        else
+        {
+            city = get_json_value("city", fhttp.last_response, MAX_TOKENS);
+            region = get_json_value("region", fhttp.last_response, MAX_TOKENS);
+            country = get_json_value("country", fhttp.last_response, MAX_TOKENS);
+            latitude = get_json_value("latitude", fhttp.last_response, MAX_TOKENS);
+            longitude = get_json_value("longitude", fhttp.last_response, MAX_TOKENS);
+        }
 
         if (city == NULL || region == NULL || country == NULL || latitude == NULL || longitude == NULL)
         {
             FURI_LOG_E(TAG, "Failed to get geo location data");
             fhttp.state = ISSUE;
+            if (city) free(city);
+            if (region) free(region);
+            if (country) free(country);
+            if (latitude) free(latitude);
+            if (longitude) free(longitude);
             return NULL;
         }
 
@@ -136,16 +193,35 @@ bool process_geo_location_2()
 {
     if (fhttp.last_response != NULL)
     {
-        char *city = get_json_value("city", fhttp.last_response, MAX_TOKENS);
-        char *region = get_json_value("region", fhttp.last_response, MAX_TOKENS);
-        char *country = get_json_value("country", fhttp.last_response, MAX_TOKENS);
-        char *latitude = get_json_value("latitude", fhttp.last_response, MAX_TOKENS);
-        char *longitude = get_json_value("longitude", fhttp.last_response, MAX_TOKENS);
+        char *latitude = NULL;
+        char *longitude = NULL;
 
-        if (city == NULL || region == NULL || country == NULL || latitude == NULL || longitude == NULL)
+        if (strlen(custom_location) > 0)
+        {
+            // Parse open-meteo geocoding API response
+            char *result = get_json_array_value("results", 0, fhttp.last_response, MAX_TOKENS);
+            if (result == NULL)
+            {
+                FURI_LOG_E(TAG, "Failed to get geocoding results");
+                fhttp.state = ISSUE;
+                return false;
+            }
+            latitude = get_json_value("latitude", result, MAX_TOKENS);
+            longitude = get_json_value("longitude", result, MAX_TOKENS);
+            free(result);
+        }
+        else
+        {
+            latitude = get_json_value("latitude", fhttp.last_response, MAX_TOKENS);
+            longitude = get_json_value("longitude", fhttp.last_response, MAX_TOKENS);
+        }
+
+        if (latitude == NULL || longitude == NULL)
         {
             FURI_LOG_E(TAG, "Failed to get geo location data");
             fhttp.state = ISSUE;
+            if (latitude) free(latitude);
+            if (longitude) free(longitude);
             return false;
         }
 
@@ -153,9 +229,6 @@ bool process_geo_location_2()
         snprintf(lon_data, sizeof(lon_data), "Longitude: %s", longitude);
 
         fhttp.state = IDLE;
-        free(city);
-        free(region);
-        free(country);
         free(latitude);
         free(longitude);
         return true;
