@@ -35,6 +35,7 @@ typedef struct
     void *validator_callback_context;
     FuriString *validator_text;
     bool valadator_message_visible;
+    bool allow_empty;
 } UART_TextInputModel;
 
 static const uint8_t keyboard_origin_x = 1;
@@ -503,7 +504,7 @@ static void uart_text_input_handle_ok(
             model->valadator_message_visible = true;
             furi_timer_start(uart_text_input->timer, furi_kernel_get_tick_frequency() * 4);
         }
-        else if (model->callback != 0 && text_length > 0)
+        else if (model->callback != 0 && (text_length > 0 || model->allow_empty))
         {
             model->callback(model->callback_context);
         }
@@ -781,4 +782,10 @@ void uart_text_input_set_header_text(UART_TextInput *uart_text_input, const char
 {
     with_view_model(
         uart_text_input->view, UART_TextInputModel * model, { model->header = text; }, true);
+}
+
+void uart_text_input_set_allow_empty(UART_TextInput *uart_text_input, bool allow_empty)
+{
+    with_view_model(
+        uart_text_input->view, UART_TextInputModel * model, { model->allow_empty = allow_empty; }, true);
 }
