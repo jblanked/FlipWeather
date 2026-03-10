@@ -77,16 +77,22 @@ bool send_geo_location_request()
         else
             snprintf(combined_location, sizeof(combined_location), "%s", custom_city);
 
-        // URL-encode (replace spaces with %20)
+        // URL-encode (replace spaces with %20, commas with %2C)
         char encoded_location[384];
         size_t j = 0;
-        for (size_t i = 0; i < strlen(combined_location) && j < sizeof(encoded_location) - 3; i++)
+        for (size_t i = 0; i < strlen(combined_location) && j < sizeof(encoded_location) - 4; i++)
         {
             if (combined_location[i] == ' ')
             {
                 encoded_location[j++] = '%';
                 encoded_location[j++] = '2';
                 encoded_location[j++] = '0';
+            }
+            else if (combined_location[i] == ',')
+            {
+                encoded_location[j++] = '%';
+                encoded_location[j++] = '2';
+                encoded_location[j++] = 'C';
             }
             else
             {
