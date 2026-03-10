@@ -15,7 +15,9 @@ void temperature_unit_change(VariableItem *item);
 void callback_submenu_choices(void *context, uint32_t index);
 void text_updated_ssid(void *context);
 void text_updated_password(void *context);
-void text_updated_location(void *context);
+void text_updated_city(void *context);
+void text_updated_state(void *context);
+void text_updated_country(void *context);
 uint32_t callback_to_submenu(void *context);
 void settings_item_selected(void *context, uint32_t index);
 

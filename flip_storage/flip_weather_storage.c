@@ -1,10 +1,11 @@
-
 #include "flip_storage/flip_weather_storage.h"
 
 void save_settings(
     const char *ssid,
     const char *password,
-    const char *custom_location,
+    const char *city,
+    const char *state,
+    const char *country,
     bool use_fahrenheit)
 {
     // Create the directory for saving settings
@@ -48,12 +49,28 @@ void save_settings(
         FURI_LOG_E(TAG, "Failed to write temperature unit");
     }
 
-    // Save the custom location length and data
-    size_t custom_location_length = strlen(custom_location) + 1; // Include null terminator
-    if (storage_file_write(file, &custom_location_length, sizeof(size_t)) != sizeof(size_t) ||
-        storage_file_write(file, custom_location, custom_location_length) != custom_location_length)
+    // Save the city length and data
+    size_t city_length = strlen(city) + 1; // Include null terminator
+    if (storage_file_write(file, &city_length, sizeof(size_t)) != sizeof(size_t) ||
+        storage_file_write(file, city, city_length) != city_length)
     {
-        FURI_LOG_E(TAG, "Failed to write custom location");
+        FURI_LOG_E(TAG, "Failed to write city");
+    }
+
+    // Save the state/region length and data
+    size_t state_length = strlen(state) + 1; // Include null terminator
+    if (storage_file_write(file, &state_length, sizeof(size_t)) != sizeof(size_t) ||
+        storage_file_write(file, state, state_length) != state_length)
+    {
+        FURI_LOG_E(TAG, "Failed to write state");
+    }
+
+    // Save the country length and data
+    size_t country_length = strlen(country) + 1; // Include null terminator
+    if (storage_file_write(file, &country_length, sizeof(size_t)) != sizeof(size_t) ||
+        storage_file_write(file, country, country_length) != country_length)
+    {
+        FURI_LOG_E(TAG, "Failed to write country");
     }
 
     storage_file_close(file);
@@ -66,8 +83,12 @@ bool load_settings(
     size_t ssid_size,
     char *password,
     size_t password_size,
-    char *custom_location,
-    size_t custom_location_size,
+    char *city,
+    size_t city_size,
+    char *state,
+    size_t state_size,
+    char *country,
+    size_t country_size,
     bool *use_fahrenheit)
 {
     Storage *storage = furi_record_open(RECORD_STORAGE);
@@ -115,14 +136,34 @@ bool load_settings(
         *use_fahrenheit = (temp_unit == 1);
     }
 
-    // Load the custom location (optional — may not exist in older settings files)
-    custom_location[0] = '\0';
-    size_t custom_location_length;
-    if (storage_file_read(file, &custom_location_length, sizeof(size_t)) == sizeof(size_t) &&
-        custom_location_length <= custom_location_size &&
-        storage_file_read(file, custom_location, custom_location_length) == custom_location_length)
+    // Load the city (optional — may not exist in older settings files)
+    city[0] = '\0';
+    size_t city_length;
+    if (storage_file_read(file, &city_length, sizeof(size_t)) == sizeof(size_t) &&
+        city_length <= city_size &&
+        storage_file_read(file, city, city_length) == city_length)
     {
-        custom_location[custom_location_length - 1] = '\0'; // Ensure null-termination
+        city[city_length - 1] = '\0'; // Ensure null-termination
+    }
+
+    // Load the state/region (optional — may not exist in older settings files)
+    state[0] = '\0';
+    size_t state_length;
+    if (storage_file_read(file, &state_length, sizeof(size_t)) == sizeof(size_t) &&
+        state_length <= state_size &&
+        storage_file_read(file, state, state_length) == state_length)
+    {
+        state[state_length - 1] = '\0'; // Ensure null-termination
+    }
+
+    // Load the country (optional — may not exist in older settings files)
+    country[0] = '\0';
+    size_t country_length;
+    if (storage_file_read(file, &country_length, sizeof(size_t)) == sizeof(size_t) &&
+        country_length <= country_size &&
+        storage_file_read(file, country, country_length) == country_length)
+    {
+        country[country_length - 1] = '\0'; // Ensure null-termination
     }
 
     storage_file_close(file);

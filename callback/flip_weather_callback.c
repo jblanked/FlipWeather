@@ -84,7 +84,9 @@ void temperature_unit_change(VariableItem *item)
     save_settings(
         app_instance->uart_text_input_buffer_ssid,
         app_instance->uart_text_input_buffer_password,
-        app_instance->uart_text_input_buffer_location,
+        app_instance->uart_text_input_buffer_city,
+        app_instance->uart_text_input_buffer_state,
+        app_instance->uart_text_input_buffer_country,
         use_fahrenheit);
 }
 
@@ -138,7 +140,7 @@ void text_updated_ssid(void *context)
     }
 
     // save settings
-    save_settings(app->uart_text_input_buffer_ssid, app->uart_text_input_buffer_password, app->uart_text_input_buffer_location, use_fahrenheit);
+    save_settings(app->uart_text_input_buffer_ssid, app->uart_text_input_buffer_password, app->uart_text_input_buffer_city, app->uart_text_input_buffer_state, app->uart_text_input_buffer_country, use_fahrenheit);
 
     // save wifi settings to devboard
     if (strlen(app->uart_text_input_buffer_ssid) > 0 && strlen(app->uart_text_input_buffer_password) > 0)
@@ -175,7 +177,7 @@ void text_updated_password(void *context)
     }
 
     // save settings
-    save_settings(app->uart_text_input_buffer_ssid, app->uart_text_input_buffer_password, app->uart_text_input_buffer_location, use_fahrenheit);
+    save_settings(app->uart_text_input_buffer_ssid, app->uart_text_input_buffer_password, app->uart_text_input_buffer_city, app->uart_text_input_buffer_state, app->uart_text_input_buffer_country, use_fahrenheit);
 
     // save wifi settings to devboard
     if (strlen(app->uart_text_input_buffer_ssid) > 0 && strlen(app->uart_text_input_buffer_password) > 0)
@@ -190,7 +192,7 @@ void text_updated_password(void *context)
     view_dispatcher_switch_to_view(app->view_dispatcher, FlipWeatherViewSettings);
 }
 
-void text_updated_location(void *context)
+void text_updated_city(void *context)
 {
     FlipWeatherApp *app = (FlipWeatherApp *)context;
     if (!app)
@@ -200,23 +202,87 @@ void text_updated_location(void *context)
     }
 
     // store the entered text
-    strncpy(app->uart_text_input_buffer_location, app->uart_text_input_temp_buffer_location, app->uart_text_input_buffer_size_location);
+    strncpy(app->uart_text_input_buffer_city, app->uart_text_input_temp_buffer_city, app->uart_text_input_buffer_size_city);
 
     // Ensure null-termination
-    app->uart_text_input_buffer_location[app->uart_text_input_buffer_size_location - 1] = '\0';
+    app->uart_text_input_buffer_city[app->uart_text_input_buffer_size_city - 1] = '\0';
 
-    // update the global custom_location
-    strncpy(custom_location, app->uart_text_input_buffer_location, sizeof(custom_location) - 1);
-    custom_location[sizeof(custom_location) - 1] = '\0';
+    // update the global custom_city
+    strncpy(custom_city, app->uart_text_input_buffer_city, sizeof(custom_city) - 1);
+    custom_city[sizeof(custom_city) - 1] = '\0';
 
     // update the variable item text
-    if (app->variable_item_location)
+    if (app->variable_item_city)
     {
-        variable_item_set_current_value_text(app->variable_item_location, app->uart_text_input_buffer_location);
+        variable_item_set_current_value_text(app->variable_item_city, app->uart_text_input_buffer_city);
     }
 
     // save settings
-    save_settings(app->uart_text_input_buffer_ssid, app->uart_text_input_buffer_password, app->uart_text_input_buffer_location, use_fahrenheit);
+    save_settings(app->uart_text_input_buffer_ssid, app->uart_text_input_buffer_password, app->uart_text_input_buffer_city, app->uart_text_input_buffer_state, app->uart_text_input_buffer_country, use_fahrenheit);
+
+    // switch to the settings view
+    view_dispatcher_switch_to_view(app->view_dispatcher, FlipWeatherViewSettings);
+}
+
+void text_updated_state(void *context)
+{
+    FlipWeatherApp *app = (FlipWeatherApp *)context;
+    if (!app)
+    {
+        FURI_LOG_E(TAG, "FlipWeatherApp is NULL");
+        return;
+    }
+
+    // store the entered text
+    strncpy(app->uart_text_input_buffer_state, app->uart_text_input_temp_buffer_state, app->uart_text_input_buffer_size_state);
+
+    // Ensure null-termination
+    app->uart_text_input_buffer_state[app->uart_text_input_buffer_size_state - 1] = '\0';
+
+    // update the global custom_state
+    strncpy(custom_state, app->uart_text_input_buffer_state, sizeof(custom_state) - 1);
+    custom_state[sizeof(custom_state) - 1] = '\0';
+
+    // update the variable item text
+    if (app->variable_item_state)
+    {
+        variable_item_set_current_value_text(app->variable_item_state, app->uart_text_input_buffer_state);
+    }
+
+    // save settings
+    save_settings(app->uart_text_input_buffer_ssid, app->uart_text_input_buffer_password, app->uart_text_input_buffer_city, app->uart_text_input_buffer_state, app->uart_text_input_buffer_country, use_fahrenheit);
+
+    // switch to the settings view
+    view_dispatcher_switch_to_view(app->view_dispatcher, FlipWeatherViewSettings);
+}
+
+void text_updated_country(void *context)
+{
+    FlipWeatherApp *app = (FlipWeatherApp *)context;
+    if (!app)
+    {
+        FURI_LOG_E(TAG, "FlipWeatherApp is NULL");
+        return;
+    }
+
+    // store the entered text
+    strncpy(app->uart_text_input_buffer_country, app->uart_text_input_temp_buffer_country, app->uart_text_input_buffer_size_country);
+
+    // Ensure null-termination
+    app->uart_text_input_buffer_country[app->uart_text_input_buffer_size_country - 1] = '\0';
+
+    // update the global custom_country
+    strncpy(custom_country, app->uart_text_input_buffer_country, sizeof(custom_country) - 1);
+    custom_country[sizeof(custom_country) - 1] = '\0';
+
+    // update the variable item text
+    if (app->variable_item_country)
+    {
+        variable_item_set_current_value_text(app->variable_item_country, app->uart_text_input_buffer_country);
+    }
+
+    // save settings
+    save_settings(app->uart_text_input_buffer_ssid, app->uart_text_input_buffer_password, app->uart_text_input_buffer_city, app->uart_text_input_buffer_state, app->uart_text_input_buffer_country, use_fahrenheit);
 
     // switch to the settings view
     view_dispatcher_switch_to_view(app->view_dispatcher, FlipWeatherViewSettings);
@@ -267,8 +333,14 @@ void settings_item_selected(void *context, uint32_t index)
     case 1: // Input Password
         view_dispatcher_switch_to_view(app->view_dispatcher, FlipWeatherViewTextInputPassword);
         break;
-    case 2: // Input Location
-        view_dispatcher_switch_to_view(app->view_dispatcher, FlipWeatherViewTextInputLocation);
+    case 2: // Input City
+        view_dispatcher_switch_to_view(app->view_dispatcher, FlipWeatherViewTextInputCity);
+        break;
+    case 3: // Input State/Region
+        view_dispatcher_switch_to_view(app->view_dispatcher, FlipWeatherViewTextInputState);
+        break;
+    case 4: // Input Country
+        view_dispatcher_switch_to_view(app->view_dispatcher, FlipWeatherViewTextInputCountry);
         break;
     default:
         FURI_LOG_E(TAG, "Unknown configuration item index");

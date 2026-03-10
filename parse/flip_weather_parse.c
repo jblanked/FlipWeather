@@ -64,14 +64,25 @@ bool send_geo_location_request()
         return false;
     }
     char url[512];
-    if (strlen(custom_location) > 0)
+    if (strlen(custom_city) > 0)
     {
-        // URL-encode custom_location (replace spaces with %20)
-        char encoded_location[192];
+        // Build combined location string: "city, state, country" (state/country optional)
+        char combined_location[256];
+        if (strlen(custom_state) > 0 && strlen(custom_country) > 0)
+            snprintf(combined_location, sizeof(combined_location), "%s, %s, %s", custom_city, custom_state, custom_country);
+        else if (strlen(custom_state) > 0)
+            snprintf(combined_location, sizeof(combined_location), "%s, %s", custom_city, custom_state);
+        else if (strlen(custom_country) > 0)
+            snprintf(combined_location, sizeof(combined_location), "%s, %s", custom_city, custom_country);
+        else
+            snprintf(combined_location, sizeof(combined_location), "%s", custom_city);
+
+        // URL-encode (replace spaces with %20)
+        char encoded_location[384];
         size_t j = 0;
-        for (size_t i = 0; i < strlen(custom_location) && j < sizeof(encoded_location) - 3; i++)
+        for (size_t i = 0; i < strlen(combined_location) && j < sizeof(encoded_location) - 3; i++)
         {
-            if (custom_location[i] == ' ')
+            if (combined_location[i] == ' ')
             {
                 encoded_location[j++] = '%';
                 encoded_location[j++] = '2';
@@ -79,7 +90,7 @@ bool send_geo_location_request()
             }
             else
             {
-                encoded_location[j++] = custom_location[i];
+                encoded_location[j++] = combined_location[i];
             }
         }
         encoded_location[j] = '\0';
@@ -126,7 +137,7 @@ char *process_geo_location(DataLoaderModel *model)
         char *region = NULL;
         char *country = NULL;
 
-        if (strlen(custom_location) > 0)
+        if (strlen(custom_city) > 0)
         {
             // Parse open-meteo geocoding API response: {"results":[{"latitude":...,"longitude":...,"name":...,"admin1":...,"country":...}]}
             char *result = get_json_array_value("results", 0, fhttp.last_response, MAX_TOKENS);
@@ -196,7 +207,7 @@ bool process_geo_location_2()
         char *latitude = NULL;
         char *longitude = NULL;
 
-        if (strlen(custom_location) > 0)
+        if (strlen(custom_city) > 0)
         {
             // Parse open-meteo geocoding API response
             char *result = get_json_array_value("results", 0, fhttp.last_response, MAX_TOKENS);

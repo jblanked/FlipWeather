@@ -10,7 +10,9 @@
 void save_settings(
     const char *ssid,
     const char *password,
-    const char *custom_location,
+    const char *city,
+    const char *state,
+    const char *country,
     bool use_fahrenheit);
 
 bool load_settings(
@@ -18,7 +20,11 @@ bool load_settings(
     size_t ssid_size,
     char *password,
     size_t password_size,
-    char *custom_location,
-    size_t custom_location_size,
+    char *city,
+    size_t city_size,
+    char *state,
+    size_t state_size,
+    char *country,
+    size_t country_size,
     bool *use_fahrenheit);
 #endif // FLIP_WEATHER_STORAGE_H

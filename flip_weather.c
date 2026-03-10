@@ -6,7 +6,9 @@ char lon_data[32];
 char *total_data = NULL;
 char *weather_data = NULL;
 bool use_fahrenheit = false;
-char custom_location[64] = "";
+char custom_city[64] = "";
+char custom_state[64] = "";
+char custom_country[64] = "";
 
 FlipWeatherApp *app_instance = NULL;
 void flip_weather_loader_free_model(View *view);
@@ -65,10 +67,20 @@ void flip_weather_app_free(FlipWeatherApp *app)
         view_dispatcher_remove_view(app->view_dispatcher, FlipWeatherViewTextInputPassword);
         uart_text_input_free(app->uart_text_input_password);
     }
-    if (app->uart_text_input_location)
+    if (app->uart_text_input_city)
     {
-        view_dispatcher_remove_view(app->view_dispatcher, FlipWeatherViewTextInputLocation);
-        uart_text_input_free(app->uart_text_input_location);
+        view_dispatcher_remove_view(app->view_dispatcher, FlipWeatherViewTextInputCity);
+        uart_text_input_free(app->uart_text_input_city);
+    }
+    if (app->uart_text_input_state)
+    {
+        view_dispatcher_remove_view(app->view_dispatcher, FlipWeatherViewTextInputState);
+        uart_text_input_free(app->uart_text_input_state);
+    }
+    if (app->uart_text_input_country)
+    {
+        view_dispatcher_remove_view(app->view_dispatcher, FlipWeatherViewTextInputCountry);
+        uart_text_input_free(app->uart_text_input_country);
     }
 
     // Free the text input buffer
@@ -80,10 +92,18 @@ void flip_weather_app_free(FlipWeatherApp *app)
         free(app->uart_text_input_buffer_password);
     if (app->uart_text_input_temp_buffer_password)
         free(app->uart_text_input_temp_buffer_password);
-    if (app->uart_text_input_buffer_location)
-        free(app->uart_text_input_buffer_location);
-    if (app->uart_text_input_temp_buffer_location)
-        free(app->uart_text_input_temp_buffer_location);
+    if (app->uart_text_input_buffer_city)
+        free(app->uart_text_input_buffer_city);
+    if (app->uart_text_input_temp_buffer_city)
+        free(app->uart_text_input_temp_buffer_city);
+    if (app->uart_text_input_buffer_state)
+        free(app->uart_text_input_buffer_state);
+    if (app->uart_text_input_temp_buffer_state)
+        free(app->uart_text_input_temp_buffer_state);
+    if (app->uart_text_input_buffer_country)
+        free(app->uart_text_input_buffer_country);
+    if (app->uart_text_input_temp_buffer_country)
+        free(app->uart_text_input_temp_buffer_country);
 
     // deinitalize flipper http
     flipper_http_deinit();
