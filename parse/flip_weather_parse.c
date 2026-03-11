@@ -129,27 +129,27 @@ char *process_geo_location(DataLoaderModel *model)
         if (strlen(custom_location) > 0)
         {
             // Parse open-meteo geocoding API response: {"results":[{"latitude":...,"longitude":...,"name":...,"admin1":...,"country":...}]}
-            char *result = get_json_array_value("results", 0, fhttp.last_response, MAX_TOKENS);
+            char *result = get_json_array_value("results", 0, fhttp.last_response);
             if (result == NULL)
             {
                 FURI_LOG_E(TAG, "Failed to get geocoding results");
                 fhttp.state = ISSUE;
                 return NULL;
             }
-            latitude = get_json_value("latitude", result, MAX_TOKENS);
-            longitude = get_json_value("longitude", result, MAX_TOKENS);
-            city = get_json_value("name", result, MAX_TOKENS);
-            region = get_json_value("admin1", result, MAX_TOKENS);
-            country = get_json_value("country", result, MAX_TOKENS);
+            latitude = get_json_value("latitude", result);
+            longitude = get_json_value("longitude", result);
+            city = get_json_value("name", result);
+            region = get_json_value("admin1", result);
+            country = get_json_value("country", result);
             free(result);
         }
         else
         {
-            city = get_json_value("city", fhttp.last_response, MAX_TOKENS);
-            region = get_json_value("region", fhttp.last_response, MAX_TOKENS);
-            country = get_json_value("country", fhttp.last_response, MAX_TOKENS);
-            latitude = get_json_value("latitude", fhttp.last_response, MAX_TOKENS);
-            longitude = get_json_value("longitude", fhttp.last_response, MAX_TOKENS);
+            city = get_json_value("city", fhttp.last_response);
+            region = get_json_value("region", fhttp.last_response);
+            country = get_json_value("country", fhttp.last_response);
+            latitude = get_json_value("latitude", fhttp.last_response);
+            longitude = get_json_value("longitude", fhttp.last_response);
         }
 
         if (city == NULL || region == NULL || country == NULL || latitude == NULL || longitude == NULL)
@@ -199,21 +199,21 @@ bool process_geo_location_2()
         if (strlen(custom_location) > 0)
         {
             // Parse open-meteo geocoding API response
-            char *result = get_json_array_value("results", 0, fhttp.last_response, MAX_TOKENS);
+            char *result = get_json_array_value("results", 0, fhttp.last_response);
             if (result == NULL)
             {
                 FURI_LOG_E(TAG, "Failed to get geocoding results");
                 fhttp.state = ISSUE;
                 return false;
             }
-            latitude = get_json_value("latitude", result, MAX_TOKENS);
-            longitude = get_json_value("longitude", result, MAX_TOKENS);
+            latitude = get_json_value("latitude", result);
+            longitude = get_json_value("longitude", result);
             free(result);
         }
         else
         {
-            latitude = get_json_value("latitude", fhttp.last_response, MAX_TOKENS);
-            longitude = get_json_value("longitude", fhttp.last_response, MAX_TOKENS);
+            latitude = get_json_value("latitude", fhttp.last_response);
+            longitude = get_json_value("longitude", fhttp.last_response);
         }
 
         if (latitude == NULL || longitude == NULL)
@@ -241,16 +241,16 @@ char *process_weather(DataLoaderModel *model)
     UNUSED(model);
     if (fhttp.last_response != NULL)
     {
-        char *current_data = get_json_value("current", fhttp.last_response, MAX_TOKENS);
-        char *temperature = get_json_value("temperature_2m", current_data, MAX_TOKENS);
-        char *precipitation = get_json_value("precipitation", current_data, MAX_TOKENS);
-        char *rain = get_json_value("rain", current_data, MAX_TOKENS);
-        char *showers = get_json_value("showers", current_data, MAX_TOKENS);
-        char *snowfall = get_json_value("snowfall", current_data, MAX_TOKENS);
-        char *wind_speed = get_json_value("wind_speed_10m", current_data, MAX_TOKENS);
-        char *wind_direction = get_json_value("wind_direction_10m", current_data, MAX_TOKENS);
-        char *weather_code = get_json_value("weather_code", current_data, MAX_TOKENS);
-        char *time = get_json_value("time", current_data, MAX_TOKENS);
+        char *current_data = get_json_value("current", fhttp.last_response);
+        char *temperature = get_json_value("temperature_2m", current_data);
+        char *precipitation = get_json_value("precipitation", current_data);
+        char *rain = get_json_value("rain", current_data);
+        char *showers = get_json_value("showers", current_data);
+        char *snowfall = get_json_value("snowfall", current_data);
+        char *wind_speed = get_json_value("wind_speed_10m", current_data);
+        char *wind_direction = get_json_value("wind_direction_10m", current_data);
+        char *weather_code = get_json_value("weather_code", current_data);
+        char *time = get_json_value("time", current_data);
 
         if (current_data == NULL || temperature == NULL || precipitation == NULL || rain == NULL || showers == NULL || snowfall == NULL || wind_speed == NULL || wind_direction == NULL || weather_code == NULL || time == NULL)
         {
