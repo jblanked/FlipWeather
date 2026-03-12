@@ -242,6 +242,12 @@ char *process_weather(DataLoaderModel *model)
     if (fhttp.last_response != NULL)
     {
         char *current_data = get_json_value("current", fhttp.last_response);
+        if (current_data == NULL)
+        {
+            FURI_LOG_E(TAG, "Failed to get 'current' object from weather response");
+            fhttp.state = ISSUE;
+            return NULL;
+        }
         char *temperature = get_json_value("temperature_2m", current_data);
         char *precipitation = get_json_value("precipitation", current_data);
         char *rain = get_json_value("rain", current_data);
@@ -252,10 +258,20 @@ char *process_weather(DataLoaderModel *model)
         char *weather_code = get_json_value("weather_code", current_data);
         char *time = get_json_value("time", current_data);
 
-        if (current_data == NULL || temperature == NULL || precipitation == NULL || rain == NULL || showers == NULL || snowfall == NULL || wind_speed == NULL || wind_direction == NULL || weather_code == NULL || time == NULL)
+        if (temperature == NULL || precipitation == NULL || rain == NULL || showers == NULL || snowfall == NULL || wind_speed == NULL || wind_direction == NULL || weather_code == NULL || time == NULL)
         {
-            FURI_LOG_E(TAG, "Failed to get weather data");
+            FURI_LOG_E(TAG, "Failed to get weather data fields");
             fhttp.state = ISSUE;
+            free(current_data);
+            if (temperature) free(temperature);
+            if (precipitation) free(precipitation);
+            if (rain) free(rain);
+            if (showers) free(showers);
+            if (snowfall) free(snowfall);
+            if (wind_speed) free(wind_speed);
+            if (wind_direction) free(wind_direction);
+            if (weather_code) free(weather_code);
+            if (time) free(time);
             return NULL;
         }
 
