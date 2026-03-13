@@ -57,7 +57,7 @@ FlipWeatherApp *flip_weather_app_alloc()
     flip_weather_loader_init(app->view_loader);
 
     // Widget
-    if (!easy_flipper_set_widget(&app->widget, FlipWeatherViewAbout, "FlipWeather v1.3\n-----\nUse WiFi to get GPS and \nWeather information.\n-----\nwww.github.com/jblanked", callback_to_submenu, &app->view_dispatcher))
+    if (!easy_flipper_set_widget(&app->widget, FlipWeatherViewAbout, "FlipWeather v1.4\n-----\nUse WiFi to get GPS and \nWeather information.\n-----\nwww.github.com/jblanked", callback_to_submenu, &app->view_dispatcher))
     {
         return NULL;
     }
@@ -97,7 +97,7 @@ FlipWeatherApp *flip_weather_app_alloc()
     variable_item_set_current_value_text(app->variable_item_temperature_unit, "Celsius");
 
     // Submenu
-    if (!easy_flipper_set_submenu(&app->submenu, FlipWeatherViewSubmenu, "FlipWeather v1.3", callback_exit_app, &app->view_dispatcher))
+    if (!easy_flipper_set_submenu(&app->submenu, FlipWeatherViewSubmenu, "FlipWeather v1.4", callback_exit_app, &app->view_dispatcher))
     {
         return NULL;
     }
