@@ -118,7 +118,12 @@ bool send_geo_weather_request(DataLoaderModel *model)
 char *process_geo_location(DataLoaderModel *model)
 {
     UNUSED(model);
-    if (fhttp.last_response != NULL)
+    if (fhttp.last_response == NULL)
+    {
+        FURI_LOG_E(TAG, "last_response is NULL in process_geo_location");
+        fhttp.state = ISSUE;
+        return NULL;
+    }
     {
         char *latitude = NULL;
         char *longitude = NULL;
@@ -189,9 +194,15 @@ char *process_geo_location(DataLoaderModel *model)
     return total_data;
 }
 
+
 bool process_geo_location_2()
 {
-    if (fhttp.last_response != NULL)
+    if (fhttp.last_response == NULL)
+    {
+        FURI_LOG_E(TAG, "last_response is NULL in process_geo_location_2");
+        fhttp.state = ISSUE;
+        return false;
+    }
     {
         char *latitude = NULL;
         char *longitude = NULL;
@@ -233,13 +244,17 @@ bool process_geo_location_2()
         free(longitude);
         return true;
     }
-    return false;
 }
 
 char *process_weather(DataLoaderModel *model)
 {
     UNUSED(model);
-    if (fhttp.last_response != NULL)
+    if (fhttp.last_response == NULL)
+    {
+        FURI_LOG_E(TAG, "last_response is NULL in process_weather");
+        fhttp.state = ISSUE;
+        return NULL;
+    }
     {
         char *current_data = get_json_value("current", fhttp.last_response);
         if (current_data == NULL)
@@ -308,6 +323,6 @@ char *process_weather(DataLoaderModel *model)
         free(wind_direction);
         free(weather_code);
         free(time);
+        return weather_data;
     }
-    return weather_data;
 }
