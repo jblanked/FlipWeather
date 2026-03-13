@@ -50,6 +50,13 @@ static void flip_weather_request_error_draw(Canvas *canvas)
             canvas_clear(canvas);
             canvas_draw_str(canvas, 0, 10, "[STATUS]Connecting to AP...");
         }
+        else if (strstr(fhttp.last_response, "generationtime_ms") != NULL)
+        {
+            canvas_clear(canvas);
+            canvas_draw_str(canvas, 0, 10, "[ERROR] Location not found.");
+            canvas_draw_str(canvas, 0, 50, "Check your location setting.");
+            canvas_draw_str(canvas, 0, 60, "Press BACK to return.");
+        }
         else
         {
             canvas_clear(canvas);
